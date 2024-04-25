@@ -5,33 +5,11 @@ import pickle
 import numpy as np
 
 class FaceRecognition:
-    def __init__(self, frames_dir, pickle_path):
-        #self.filename = filename
+    def __init__(self, frames_dir, pickle_path, student_dic):
+        self.students = student_dic
         self.frames_dir = frames_dir
         self.pickle_path = pickle_path
-        self.students = {
-            'Dinesh': '213J1A4267',
-            'Ritesh': '213J1A4280',
-            'Vardhan': '213J1A4287',
-            'Bhavani Shankar': '213J1A4288',
-            'Shyam': '213J1A4297',
-            'Hemant Srinivas': '213J1A4298',
-            'Harsha Vardhan': '213J1A42A6',
-            'Sadhik': '213J1A42B1',
-            'Sadhiq Shaik': '213J1A42B2',
-            'Manideep': '213J1A42B6',
-            'Rohit': '213J1A42B9',
-            'Purna': '213J1A42C2',
-            'Dev': '213J1A42C3',
-            'Murali': '213J1A42C6',
-            'Vivek': '213J1A42C9',
-            'Deepak': '213J1A42D2',
-            'Naveen': '223J5A4208',
-            'Praveen Kumar': '223J5A4209',
-            'Tharun': '223J5A4211',
-        }
-
-        #self.csm_students = csm_students
+        
         with open(self.pickle_path, 'rb') as file:
             self.known_face_encodings = pickle.load(file)
 
