@@ -1,52 +1,66 @@
-import cv2 as cv
+import face_recognition as fr
 import os
+import pickle
+import numpy as np
+import cv2 as cv
 
-class video_preprocessing:
-  def __init__(self, directory, video_path):
-    self.directory = directory
-    self.video = video_path
+class VideoPreprocessor:
+    def __init__(self, directory, video_path):
+        self.directory = directory
+        self.video_path = video_path
+        self.fps = None
+        self.frame_count = 0
+        self.extracted_frame_count = 0
 
-  def empty_folder(self):
-    contents = os.listdir(self.directory)
-    if not contents:
-      for file in [os.path.join(self.directory, f) for f in contents if os.path.isfile(os.path.join(self.directory, f))]:
-        os.remove(file)
-    return True
+    def empty_folder(self):
+        for file in os.listdir(self.directory):
+            file_path = os.path.join(self.directory, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+        return True
 
-  def extract_frames_per_second(self):
-    cap = cv.VideoCapture(self.video_path)
-    if self.empty_folder():
-      try:
-        if not cap.isOpened():
-          raise IOError("Error opening video!")
-      except IOError as e:
-        print(f"IOError: {e}")
-        return
+    def extract_frames_per_second(self):
+        try:
+            cap = cv.VideoCapture(self.video_path)
+            if not cap.isOpened():
+                raise IOError("Error opening video!")
 
-    fps = cap.get(cv.CAP_PROP_FPS)
-    frame_count = 0
-    extracted_frame_count = 0
-    while True:
-        ret, frame = cap.read()
+            self.fps = cap.get(cv.CAP_PROP_FPS)
+            if self.fps <= 0:
+                raise ValueError("Invalid FPS value.")
 
-        if not ret:
-            print("Can't receive frame (stream end?). Exiting...")
-            break
+            if self.empty_folder():
+                while True:
+                    ret, frame = cap.read()
 
-        # Extracting one frame every 1 second (assuming constant FPS)
-        if frame_count % int(fps) == 0:
-            filename = f"{self.directory}/frame_{extracted_frame_count}.jpg"
-            cv.imwrite(filename, frame)
-            extracted_frame_count += 1
+                    if not ret:
+                        print("End of video reached.")
+                        break
 
-    frame_count += 1
-    print(f"Extracted {extracted_frame_count} frames to {self.directory}")
+                    # Extract one frame per second
+                    if self.frame_count % int(self.fps) == 0:
+                        filename = f"{self.directory}/frame_{self.extracted_frame_count}.jpg"
+                        cv.imwrite(filename, frame)
+                        self.extracted_frame_count += 1
 
+                    self.frame_count += 1
 
+                print(f"Extracted {self.extracted_frame_count} frames to {self.directory}")
 
+        except IOError as e:
+            print(f"IOError: {e}")
+        except ValueError as e:
+            print(f"ValueError: {e}")
+        finally:
+            cap.release()
 
+# Example usage
+'''if __name__ == "__main__":
+    directory = "Frames"
+    video_path = "video.mp4"
 
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
-
-    
-        
+    preprocessor = VideoPreprocessor(directory, video_path)
+    preprocessor.extract_frames_per_second()'''
