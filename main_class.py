@@ -35,8 +35,10 @@ class FaceRecognition:
         with open(self.pickle_path, 'rb') as file:
             self.known_face_encodings = pickle.load(file)
 
-    #def load_new_student(path, )
-
+    def load_new_student(path):
+        x_image = fr.load_image_file(path)
+        x_face_encoding = fr.face_encodings(x_image)[0]
+        return x_face_encoding
 
     def load_image_paths(self):
         image_paths = [os.path.join(self.frames_dir, filename) for filename in os.listdir(self.frames_dir) if filename.lower().endswith('.jpg')]
